@@ -1,6 +1,6 @@
 pandas-bokeh
-jax
-jaxlib==0.1.65+cuda112
+jax[cuda111]
 
 --find-links https://storage.googleapis.com/jax-releases/jax_releases.html
 
+fedjax==0.0.7
