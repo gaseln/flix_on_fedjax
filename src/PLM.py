@@ -50,7 +50,6 @@ class ServerState:
   Attributes:
     params: A pytree representing the server model parameters.
     PLM: A pytree representing pure local models of each client in the federated dataset
-    opt_state: A pytree representing the server optimizer state.
   """
   params: Params
   PLM: Params
