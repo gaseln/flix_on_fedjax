@@ -1,26 +1,25 @@
 name: null
 
 channels:
-  - nvidia
   - conda-forge
   - defaults
 
 dependencies:
-  - attrs=19.3
   - bokeh
-  - cachetools=3.1
-  - cudnn
-  - cudatoolkit=11.4.0
+  - cudnn=8.2
+  - cudatoolkit=11.2
+  - cudatoolkit-dev=11.2
   - cupy
   - dask
   - dask-ml
   - dask-labextension
   - datashader
   - featuretools
+  - gfortran_linux-64
   - gh
   - git
-  - grpcio=1.34
-  - h5py=3.1
+  - gxx_linux-64
+  - h5py
   - holoviews
   - hvplot
   - imbalanced-learn
@@ -46,10 +45,7 @@ dependencies:
   - scikit-learn
   - scipy
   - shap
-  - six=1.15
   - tensorboard
-  - tqdm=4.28
-  - typing-extensions=3.7
   - umap-learn
   - wandb
   - xarray
