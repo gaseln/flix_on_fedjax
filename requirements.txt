@@ -3,4 +3,4 @@ jax[cuda11_cudnn82]
 
 --find-links https://storage.googleapis.com/jax-releases/jax_releases.html
 
-fedjax==0.0.7
+fedjax

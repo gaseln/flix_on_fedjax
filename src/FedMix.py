@@ -7,6 +7,7 @@ from fedjax.core import federated_data
 from fedjax.core import for_each_client
 from fedjax.core import optimizers
 from fedjax.core import tree_util
+from fedjax.core import metrics
 from fedjax.core import models
 from fedjax.core.typing import BatchExample
 from fedjax.core.typing import Params
@@ -24,10 +25,10 @@ def convex_combination(x_global: Params, x_local: Params, alpha: float) -> Param
 def create_train_for_each_client(grad_fn):
   """Builds client_init, client_step, client_final for for_each_client."""
   
-  print('Debug point 3')
   def client_init(server_params, client_input):
-    print('Debug point 4')
-    client_alpha, client_plm, client_rng = client_input
+    client_alpha = client_input['alpha']
+    client_plm = client_input['plm']
+    client_rng = client_input['rng']
     client_step_state = {
         'params': server_params,
         'rng': client_rng,
@@ -97,18 +98,12 @@ def fedmix(
       clients: Sequence[Tuple[federated_data.ClientId,
                               client_datasets.ClientDataset, PRNGKey]]
   ) -> Tuple[ServerState, Mapping[federated_data.ClientId, Any]]:
-    batch_clients = [(cid, cds.shuffle_repeat_batch(client_batch_hparams), [alphas[cid], plms[cid], crng])
+    batch_clients = [(cid, cds.shuffle_repeat_batch(client_batch_hparams), {'alpha':alphas[cid], 'plm':plms[cid], 'rng':crng})
                      for cid, cds, crng in clients]
     num_clients = len(clients)
     client_diagnostics = {}
     full_grad = tree_util.tree_zeros_like(server_state.params)
-    print('Debug point 1')
-    print('server_state.params type=',type(server_state.params))
-    print(batch_clients[0])
-    print(type(batch_clients[0][1]))
-    print(type(batch_clients[0][2][1])    
     for client_id, grad in train_for_each_client(server_state.params, batch_clients):
-      print('Debug point 2')
       full_grad = tree_util.tree_add(full_grad, grad)
       # We record the l2 norm of client updates as an example, but it is not
       # required for the algorithm.
