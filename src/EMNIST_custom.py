@@ -6,29 +6,30 @@ from custom_utils import train_preprocess_client, validation_preprocess_client
 
 def emnist_preprocess_train_split(
     fd: federated_data.FederatedData,
-    train_split: float
+    train_val_split: float
 ) -> federated_data.FederatedData:
     return (fd.preprocess_client(emnist.preprocess_client).preprocess_client(
-        train_preprocess_client(train_split)).preprocess_batch(
+        train_preprocess_client(train_val_split)).preprocess_batch(
             emnist.preprocess_batch))
 
 
 def emnist_preprocess_validation_split(
     fd: federated_data.FederatedData,
-    train_split: float
+    train_val_split: float
 ) -> federated_data.FederatedData:
     return (fd.preprocess_client(emnist.preprocess_client).preprocess_client(
-        validation_preprocess_client(train_split)).preprocess_batch(
+        validation_preprocess_client(train_val_split)).preprocess_batch(
         emnist.preprocess_batch))
 
 
 def emnist_load_gd_data(
-  only_digits: bool = False,
-  mode: str = 'sqlite',
-  cache_dir: Optional[str] = None
+    train_val_split: float,
+    only_digits: bool = False,
+    mode: str = 'sqlite',
+    cache_dir: Optional[str] = None
 ) -> Tuple[federated_data.FederatedData, federated_data.FederatedData]:
     """Loads processed EMNIST train and validation splits."""
     train = emnist.load_split(
         'train', only_digits=only_digits, mode=mode, cache_dir=cache_dir)
-    return emnist_preprocess_train_split(train),
-    emnist_preprocess_validation_split(train)
+    return emnist_preprocess_train_split(train, train_val_split), \
+        emnist_preprocess_validation_split(train, train_val_split)

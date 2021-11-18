@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Tuple
 
 from fedjax.core import dataclasses
 from fedjax.core import federated_data
@@ -8,7 +8,6 @@ from fedjax.core.typing import Params
 from fedjax.core.typing import PRNGKey
 
 import fedjax
-import itertools
 import PLM
 
 Grads = Params
@@ -22,9 +21,8 @@ class PLMComputationHParams:
 
 
 @dataclasses.dataclass
-class ComputationParams:
+class PLMComputationProcessParams:
     init_params: Params
-    num_clients: int
     num_clients_per_round: int
 
 
@@ -34,18 +32,27 @@ def plm_computation_with_statistics(
     grad_fn: Callable[[Params, BatchExample, PRNGKey], Grads],
     grad_fn_eval: Callable[[Params, BatchExample], Grads],
     plm_comp_hparams: PLMComputationHParams,
-    comp_params: ComputationParams
-) -> Params:
-    if comp_params.num_clients % comp_params.num_clients_per_round != 0:
-        raise ValueError('num_clients_per_round must divide num_clients')
-
+    comp_params: PLMComputationProcessParams,
+    validate=False,
+) -> Tuple[Params, list]:
+    if train_fd.num_clients() % comp_params.num_clients_per_round != 0:
+        raise ValueError('num_clients_per_round must divide number of clients \
+            in the dataset.')
+    if validate:
+        train_client_ids = train_fd.client_ids()
+        val_client_ids = validation_fd.client_ids()
+        if train_fd.num_clients() != validation_fd.num_clients():
+            raise ValueError('train_fd and validation_fd must contain \
+                the same number of clients.')
+        if len(train_client_ids - val_client_ids) != 0:
+            raise ValueError('train_fd and validation_fd must contain \
+                the same set of clients.')
     print('PLM computation: num_epochs = {}, lr = {}, b_size = {}'.format(
         plm_comp_hparams.num_epochs,
         plm_comp_hparams.lr,
         plm_comp_hparams.batch_size))
     client_sampler = fedjax.client_samplers.UniformShuffledClientSampler(
-        shuffled_clients_iter=itertools.islice(
-            train_fd.clients(), comp_params.num_clients),
+        shuffled_clients_iter=train_fd.clients(),
         num_clients=comp_params.num_clients_per_round)
     client_optimizer = fedjax.optimizers.sgd(learning_rate=plm_comp_hparams.lr)
     client_batch_hparams = fedjax.ShuffleRepeatBatchHParams(
@@ -54,7 +61,7 @@ def plm_computation_with_statistics(
         drop_remainder=False)
     algorithm = PLM.PLM(grad_fn, client_optimizer, client_batch_hparams)
     server_state = algorithm.init(comp_params.init_params)
-    total_rounds = comp_params.num_clients // comp_params.num_clients_per_round
+    total_rounds = train_fd.num_clients() // comp_params.num_clients_per_round
     grad_norms = []
     for round_num in range(total_rounds):
         print('Round {} / {}'.format(round_num + 1, total_rounds), end='\r')
@@ -72,7 +79,7 @@ def plm_computation(
     train_fd: federated_data.FederatedData,
     grad_fn: Callable[[Params, BatchExample, PRNGKey], Grads],
     plm_comp_hparams: PLMComputationHParams,
-    comp_params: ComputationParams
+    comp_params: PLMComputationProcessParams
 ) -> Params:
     PLM_dict, _ = plm_computation_with_statistics(
         train_fd, None, grad_fn, None, plm_comp_hparams, comp_params)

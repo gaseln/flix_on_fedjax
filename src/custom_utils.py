@@ -1,15 +1,7 @@
-from typing import Optional, Tuple, Callable
+from typing import Callable
 
 from fedjax.core import federated_data
 from fedjax.core import client_datasets
-
-from fedjax.datasets import emnist
-from fedjax.core.typing import Params, BatchExample, PRNGKey
-
-import jax.numpy as jnp
-import fedjax
-
-import PLM
 
 
 def train_preprocess_client(

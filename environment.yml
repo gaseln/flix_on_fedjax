@@ -6,6 +6,7 @@ channels:
 
 dependencies:
   - bokeh
+  - conda-build
   - cudnn=8.2
   - cudatoolkit=11.2
   - cudatoolkit-dev=11.2
