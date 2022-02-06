@@ -43,7 +43,8 @@ def grid_search(
     grid: FedMixGrid,
     num_epochs_plm: int,
     num_clients_per_fedmix_round: int,
-    save_file: str
+    save_file: str,
+    grid_metrics: str = 'accuracy'
 ) -> jnp.ndarray:
     GridSearch_table = jnp.zeros(shape=(len(grid.plm_batch_sizes),
                                         len(grid.plm_lrs),
@@ -96,6 +97,6 @@ def grid_search(
                             plm_lr_id,
                             fedmix_b_id,
                             fedmix_lr_id,
-                            client_lr_id].set(stats[0]['accuracy'])
+                            client_lr_id].set(stats[0][grid_metrics])
                         jnp.save(save_file, GridSearch_table)
     return GridSearch_table
