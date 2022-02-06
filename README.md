@@ -1,10 +1,6 @@
-# jax-gpu-data-science-project
+# Explicit Mixture of Local and Global models
 
-Repository containing scaffolding for a Python 3-based data science project with GPU acceleration using the [Jax](https://jax.readthedocs.io/en/latest/index.html) ecosystem. 
-
-## Creating a new project from this template
-
-Simply follow the [instructions](https://help.github.com/en/articles/creating-a-repository-from-a-template) to create a new project repository from this template.
+This repository contains the code to run large-scale experiments presented in the paper ["FLIX: A Simple and Communication-Efficient Alternative to Local Methods in Federated Learning"](https://arxiv.org/abs/2111.11556). For small-scale experiments, look at [this repository](https://github.com/gaseln/FLIX_small_scale_experiments).
 
 ## Project organization
 
