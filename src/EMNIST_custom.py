@@ -28,7 +28,7 @@ def emnist_load_gd_data(
     mode: str = 'sqlite',
     cache_dir: Optional[str] = None
 ) -> Tuple[federated_data.FederatedData, federated_data.FederatedData]:
-    """Loads processed EMNIST train and validation splits."""
+    """Loads preprocessed EMNIST train and validation splits."""
     train = emnist.load_split(
         'train', only_digits=only_digits, mode=mode, cache_dir=cache_dir)
     return emnist_preprocess_train_split(train, train_val_split), \
